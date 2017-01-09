@@ -2,7 +2,7 @@
 #define __SCREEN_H__
 
 
-#include "SDL/SDL.h"
+#include <SDL.h>
 #include <vector>
 #include <list>
 
@@ -37,15 +37,24 @@ class Screen
     private:
         SDL_Surface *screen;
         bool fullScreen;
+#if SDL_MAJOR_VERSION > 1
+        SDL_Cursor *mouseCursor;
+#else
         SDL_Surface *mouseImage;
         SDL_Surface *mouseSave;
         std::list<SDL_Rect> regions;
+#endif
         bool mouseVisible;
         SDL_Rect *regionsList;
         int maxRegionsList;
         int saveX, saveY;
         bool niceCursor;
         SDL_Cursor *cursor, *emptyCursor;
+#if SDL_MAJOR_VERSION > 1
+        SDL_Window *window;
+        SDL_Renderer *renderer;
+        SDL_Texture *sdlTexture;
+#endif
     
     public:
         Screen();
@@ -71,6 +80,11 @@ class Screen
         void initCursors();
         void doneCursors();
         SDL_Surface* createSubimage(int x, int y, int width, int height);
+#if SDL_MAJOR_VERSION > 1
+        SDL_Window* getWindow() {return window;};
+        void getMouse(int* x, int* y);
+        void convertMouse(int *x, int *y);
+#endif
 };
 
 

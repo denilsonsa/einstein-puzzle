@@ -57,6 +57,11 @@ SDL_Surface* loadImage(const std::wstring &name, bool transparent)
     resources->delRef(bmp);
     if (! s)
         throw Exception(L"Error loading " + name);
+#if SDL_MAJOR_VERSION > 1
+    if(transparent)
+        SDL_SetColorKey(s, SDL_TRUE, getCornerPixel(s));
+    return s;
+#else
     SDL_Surface *screenS = SDL_DisplayFormat(s);
     SDL_FreeSurface(s);
     if (! screenS)
@@ -64,6 +69,7 @@ SDL_Surface* loadImage(const std::wstring &name, bool transparent)
     if (transparent)
         SDL_SetColorKey(screenS, SDL_SRCCOLORKEY, getCornerPixel(screenS));
     return screenS;
+#endif
 }
 
 
@@ -200,11 +206,15 @@ SDL_Surface* adjustBrightness(SDL_Surface *image, double k, bool transparent)
         }
         lastGamma = k;
     }
-    
+#if SDL_MAJOR_VERSION > 1
+    SDL_Surface *s = SDL_CreateRGBSurface(0, image->w, image->h, 32,
+        0x00ff0000,0x0000ff00, 0x000000ff, 0xff000000);
+    SDL_BlitSurface(image, NULL, s, NULL);
+#else    
     SDL_Surface *s = SDL_DisplayFormat(image);
     if (! s)
         throw Exception(L"Error converting image to display format");
-    
+#endif
     SDL_LockSurface(s);
     
     Uint8 r, g, b;
@@ -217,7 +227,11 @@ SDL_Surface* adjustBrightness(SDL_Surface *image, double k, bool transparent)
     SDL_UnlockSurface(s);
 
     if (transparent)
+#if SDL_MAJOR_VERSION > 1
+        SDL_SetColorKey(s, SDL_TRUE, getCornerPixel(s));
+#else
         SDL_SetColorKey(s, SDL_SRCCOLORKEY, getCornerPixel(s));
+#endif
 
     return s;
 }

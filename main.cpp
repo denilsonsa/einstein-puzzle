@@ -1,8 +1,5 @@
 #include <stdlib.h>
 #include <iostream>
-#include <SDL/SDL.h>
-#include <SDL/SDL_main.h>
-#include <SDL/SDL_ttf.h>
 #include "main.h"
 #include "utils.h"
 #include "storage.h"
@@ -17,7 +14,11 @@ Random rndGen;
 
 static void initScreen()
 {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
+    Uint32 flags = SDL_INIT_VIDEO | SDL_INIT_AUDIO;
+#if SDL_MAJOR_VERSION > 1
+    flags |= SDL_INIT_EVENTS;
+#endif
+    if (SDL_Init(flags) < 0)
         throw Exception(std::wstring(L"Error initializing SDL: ") + 
                 fromMbcs(SDL_GetError()));
     atexit(SDL_Quit);
@@ -28,10 +29,18 @@ static void initScreen()
     screen.initCursors();
     
     SDL_Surface *mouse = loadImage(L"cursor.bmp");
+#if SDL_MAJOR_VERSION > 1
+    SDL_SetColorKey(mouse, SDL_TRUE, SDL_MapRGB(mouse->format, 0, 0, 0));
+#else
     SDL_SetColorKey(mouse, SDL_SRCCOLORKEY, SDL_MapRGB(mouse->format, 0, 0, 0));
+#endif
     screen.setMouseImage(mouse);
     SDL_FreeSurface(mouse);
+#if SDL_MAJOR_VERSION > 1
+    SDL_SetWindowTitle(screen.getWindow(), "Einstein");
+#else
     SDL_WM_SetCaption("Einstein", NULL);
+#endif
 
 #ifdef __APPLE__
     screen.setCursor(false);

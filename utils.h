@@ -1,7 +1,7 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include <string>
 #ifdef WIN32
 #include <sys/time.h>

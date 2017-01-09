@@ -41,7 +41,11 @@ HorHints::HorHints(IconSet &is, Rules &rl, std::istream &stream): iconSet(is)
     showExcluded = readInt(stream);
     
     int x, y;
+#if SDL_MAJOR_VERSION > 1
+    screen.getMouse(&x, &y);
+#else
     SDL_GetMouseState(&x, &y);
+#endif
     highlighted = getRuleNo(x, y);
 }
 
@@ -66,7 +70,11 @@ void HorHints::reset(Rules &r)
     showExcluded = false;
 
     int x, y;
+#if SDL_MAJOR_VERSION > 1
+    screen.getMouse(&x, &y);
+#else
     SDL_GetMouseState(&x, &y);
+#endif
     highlighted = getRuleNo(x, y);
 }
 

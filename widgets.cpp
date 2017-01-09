@@ -45,12 +45,21 @@ Button::Button(int x, int y, int w, int h, Font *font,
     int tW, tH;
     font->getSize(text, tW, tH);
     font->draw(s, (width - tW) / 2, (height - tH) / 2, fR, fG, fB, true, text);
+#if SDL_MAJOR_VERSION > 1
+    image = s;
+    s = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h,
+            24, 0x00FF0000, 0x0000FF00, 0x000000FF, 0/*0xFF000000*/);
+#else
     image = SDL_DisplayFormat(s);
+#endif
     SDL_BlitSurface(screen.getSurface(), &src, s, &dst);
     font->draw(s, (width - tW) / 2, (height - tH) / 2, hR, hG, hB, true, text);
+#if SDL_MAJOR_VERSION > 1
+    highlighted = s;
+#else
     highlighted = SDL_DisplayFormat(s);
     SDL_FreeSurface(s);
-    
+#endif
     mouseInside = false;
     command = cmd;
 }
@@ -93,8 +102,13 @@ Button::Button(int x, int y, int w, int h, Font *font,
     font->draw(image, (width - tW) / 2, (height - tH) / 2, r, g, b, true, text);
     
     highlighted = adjustBrightness(image, 1.5, false);
+#if SDL_MAJOR_VERSION > 1
+    SDL_SetColorKey(image, SDL_TRUE, getCornerPixel(image));
+    SDL_SetColorKey(highlighted, SDL_TRUE, getCornerPixel(highlighted));
+#else
     SDL_SetColorKey(image, SDL_SRCCOLORKEY, getCornerPixel(image));
     SDL_SetColorKey(highlighted, SDL_SRCCOLORKEY, getCornerPixel(highlighted));
+#endif
     
     mouseInside = false;
     command = cmd;
@@ -199,14 +213,22 @@ bool Button::onMouseMove(int x, int y)
 //////////////////////////////////////////////////////////////////
 
 
+#if SDL_MAJOR_VERSION > 1
+KeyAccel::KeyAccel(SDL_Keycode sym, Command *cmd)
+#else
 KeyAccel::KeyAccel(SDLKey sym, Command *cmd)
+#endif
 {
     command = cmd;
     key = sym;
 }
 
 
+#if SDL_MAJOR_VERSION > 1
+bool KeyAccel::onKeyDown(SDL_Keycode k, unsigned char ch)
+#else
 bool KeyAccel::onKeyDown(SDLKey k, unsigned char ch)
+#endif
 {
     if (key == k) {
         if (command)
@@ -254,36 +276,56 @@ void Area::remove(Widget *widget)
 
 void Area::handleEvent(const SDL_Event &event)
 {
+    int mx, my;
     switch (event.type) {
         case SDL_MOUSEBUTTONDOWN:
+            mx = event.button.x; my = event.button.y;
+#if SDL_MAJOR_VERSION > 1
+            screen.convertMouse(&mx, &my);
+#endif
             for (WidgetsList::iterator i = widgets.begin(); i != widgets.end(); i++)
                 if ((*i)->onMouseButtonDown(event.button.button, 
-                            event.button.x, event.button.y))
+                            mx, my))
                     return;
             break;
         
         case SDL_MOUSEBUTTONUP:
+            mx = event.button.x; my = event.button.y;
+#if SDL_MAJOR_VERSION > 1
+            screen.convertMouse(&mx, &my);
+#endif
             for (WidgetsList::iterator i = widgets.begin(); i != widgets.end(); i++)
                 if ((*i)->onMouseButtonUp(event.button.button, 
-                            event.button.x, event.button.y))
+                            mx, my))
                     return;
             break;
         
         case SDL_MOUSEMOTION:
+            mx = event.motion.x; my = event.motion.y;
+#if SDL_MAJOR_VERSION > 1
+            screen.convertMouse(&mx, &my);
+#endif
             for (WidgetsList::iterator i = widgets.begin(); i != widgets.end(); i++)
-                if ((*i)->onMouseMove(event.motion.x, event.motion.y))
+                if ((*i)->onMouseMove(mx, my))
                     return;
             break;
         
+#if SDL_MAJOR_VERSION > 1
+#else
         case SDL_VIDEOEXPOSE:
             for (WidgetsList::iterator i = widgets.begin(); i != widgets.end(); i++)
                 (*i)->draw();
             break;
-        
+#endif        
         case SDL_KEYDOWN:
             for (WidgetsList::iterator i = widgets.begin(); i != widgets.end(); i++)
+#if SDL_MAJOR_VERSION > 1
+                if ((*i)->onKeyDown(event.key.keysym.sym, 
+                            (unsigned char)event.key.keysym.sym))
+#else
                 if ((*i)->onKeyDown(event.key.keysym.sym, 
                             (unsigned char)event.key.keysym.unicode))
+#endif
                     return;
             break;
         
@@ -359,8 +401,11 @@ void Area::setTimer(Uint32 interval, TimerHandler *t)
 void Area::updateMouse()
 {
     int x, y;
+#if SDL_MAJOR_VERSION > 1
+    screen.getMouse(&x, &y);
+#else
     SDL_GetMouseState(&x, &y);
-    
+#endif
     for (WidgetsList::iterator i = widgets.begin(); i != widgets.end(); i++)
         if ((*i)->onMouseMove(x, y))
                     return;
@@ -390,10 +435,19 @@ AnyKeyAccel::~AnyKeyAccel()
 {
 }
 
+#if SDL_MAJOR_VERSION > 1
+bool AnyKeyAccel::onKeyDown(SDL_Keycode key, unsigned char ch)
+#else
 bool AnyKeyAccel::onKeyDown(SDLKey key, unsigned char ch)
+#endif
 {
+#if SDL_MAJOR_VERSION > 1
+    if (((key >= SDLK_PRINTSCREEN) && (key <= SDLK_NUMLOCKCLEAR)) || 
+            (key == SDLK_TAB) || (key == SDLK_UNKNOWN))
+#else
     if (((key >= SDLK_NUMLOCK) && (key <= SDLK_COMPOSE)) || 
             (key == SDLK_TAB) || (key == SDLK_UNKNOWN))
+#endif
         return false;
 
     if (command)
@@ -469,8 +523,12 @@ Window::Window(int x, int y, int w, int h, const std::wstring &bg,
     }
     SDL_UnlockSurface(win);
     
+#if SDL_MAJOR_VERSION > 1
+    background = win;
+#else
     background = SDL_DisplayFormat(win);
     SDL_FreeSurface(win);
+#endif
 }
 
 
@@ -569,13 +627,20 @@ InputField::InputField(int x, int y, int w, int h, const std::wstring &backgroun
     blue = b;
     font = f;
     moveCursor(text.length());
+#if SDL_MAJOR_VERSION > 1
+#else
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     SDL_EnableUNICODE(1);
+#endif
 }
 
 InputField::~InputField()
 {
+#if SDL_MAJOR_VERSION > 1
+#warning implement SDL 2.0 TEXT INPUT
+#else
     SDL_EnableKeyRepeat(0, 0);
+#endif
 }
 
 void InputField::draw()
@@ -617,8 +682,11 @@ void InputField::onTimer()
     }
 }
 
-
+#if SDL_MAJOR_VERSION > 1
+bool InputField::onKeyDown(SDL_Keycode key, unsigned char translatedChar)
+#else
 bool InputField::onKeyDown(SDLKey key, unsigned char translatedChar)
+#endif
 {
     switch (key) {
         case SDLK_BACKSPACE:
@@ -671,7 +739,11 @@ bool InputField::onKeyDown(SDLKey key, unsigned char translatedChar)
     return false;
 }
 
+#if SDL_MAJOR_VERSION > 1
+bool InputField::onKeyUp(SDL_Keycode key)
+#else
 bool InputField::onKeyUp(SDLKey key)
+#endif
 {
     return false;
 }
@@ -737,8 +809,13 @@ Checkbox::Checkbox(int x, int y, int w, int h, Font *font,
     SDL_UnlockSurface(image);
     
     highlighted = adjustBrightness(image, 1.5, false);
-    
+#if SDL_MAJOR_VERSION > 1
+    checkedImage = SDL_CreateRGBSurface(0, image->w, image->h, 32,
+    0x00ff0000,0x0000ff00, 0x000000ff, 0xff000000);
+    SDL_BlitSurface(image, NULL, checkedImage, NULL);
+#else
     checkedImage = SDL_DisplayFormat(image);
+#endif
     int tW, tH;
     font->getSize(L"X", tW, tH);
     tH += 2;
@@ -933,9 +1010,13 @@ void Slider::createSlider(int size)
     SDL_UnlockSurface(image);
     
     activeSlider = adjustBrightness(image, 1.5, false);
+#if SDL_MAJOR_VERSION > 1
+    slider = image;
+#else
     slider = SDL_DisplayFormat(image);
     
     SDL_FreeSurface(image);
+#endif
 }
 
 

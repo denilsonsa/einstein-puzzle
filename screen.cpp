@@ -1,4 +1,3 @@
-#include <SDL/SDL.h>
 #include "screen.h"
 #include "exceptions.h"
 #include "unicode.h"
@@ -7,18 +6,30 @@
 Screen::Screen()
 {
     screen = NULL;
-    mouseImage = NULL;
-    mouseSave = NULL;
     mouseVisible = false;
     regionsList = NULL;
     maxRegionsList = 0;
+#if SDL_MAJOR_VERSION > 1
+    window = NULL;
+    renderer = NULL;
+    sdlTexture = NULL;
+    mouseCursor = NULL;
+#else
+    mouseImage = NULL;
+    mouseSave = NULL;
+#endif
 }
 
 Screen::~Screen()
 {
     SDL_SetCursor(cursor);
+#if SDL_MAJOR_VERSION > 1
+    SDL_ShowCursor(SDL_ENABLE);
+    if (mouseCursor) SDL_FreeCursor(mouseCursor);
+#else
     if (mouseImage) SDL_FreeSurface(mouseImage);
     if (mouseSave) SDL_FreeSurface(mouseSave);
+#endif
     if (regionsList) free(regionsList);
 }
 
@@ -32,11 +43,23 @@ const VideoMode Screen::getVideoMode() const
 void Screen::setMode(const VideoMode& mode)
 {
     fullScreen = mode.isFullScreen();
-
+#if SDL_MAJOR_VERSION > 1
+    int flags = (fullScreen)?SDL_WINDOW_FULLSCREEN_DESKTOP:SDL_WINDOW_RESIZABLE;
+    if(renderer) SDL_DestroyRenderer(renderer);
+    if(window) SDL_DestroyWindow(window);
+    SDL_CreateWindowAndRenderer(mode.getWidth(), mode.getHeight(), flags, &window, &renderer);
+    if(window!=NULL && renderer!=NULL) {
+        screen = SDL_CreateRGBSurface(0, mode.getWidth(), mode.getHeight(), 32, 
+            0x00ff0000,0x0000ff00, 0x000000ff, 0xff000000);
+        sdlTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 
+            mode.getWidth(), mode.getHeight());
+    }
+#else
     int flags = SDL_SWSURFACE /*| SDL_OPENGL*/;
     if (fullScreen)
         flags = flags | SDL_FULLSCREEN;
     screen = SDL_SetVideoMode(mode.getWidth(), mode.getHeight(), mode.getBpp(), flags);
+#endif
     if (! screen)
         throw Exception(L"Couldn't set video mode: " + 
                 fromMbcs((SDL_GetError())));
@@ -69,14 +92,32 @@ int Screen::getHeight() const
 
 void Screen::centerMouse()
 {
+#if SDL_MAJOR_VERSION > 1
+    if(window!=NULL) {
+        int w, h;
+        SDL_GetWindowSize(window, &w, &h);
+        SDL_WarpMouseInWindow(window, w / 2, h / 2);
+    }
+#else
     if (screen) 
         SDL_WarpMouse(screen->w / 2, screen->h / 2);
+#endif
     else 
         throw Exception(L"No video mode selected");
 }
 
 void Screen::setMouseImage(SDL_Surface *image)
 {
+#if SDL_MAJOR_VERSION > 1
+    if(mouseCursor) {
+        SDL_FreeCursor(mouseCursor);
+        mouseCursor = NULL;
+    }
+    if (! image) return;
+
+    mouseCursor = SDL_CreateColorCursor(image, 0, 0);
+
+#else
     if (mouseImage) {
         SDL_FreeSurface(mouseImage);
         mouseImage = NULL;
@@ -102,6 +143,7 @@ void Screen::setMouseImage(SDL_Surface *image)
     }
     SDL_SetColorKey(mouseImage, SDL_SRCCOLORKEY, 
             SDL_MapRGB(mouseImage->format, 0, 0, 0));
+#endif
 }
 
 
@@ -115,6 +157,9 @@ void Screen::hideMouse()
         return;
     }
 
+#if SDL_MAJOR_VERSION > 1
+    SDL_ShowCursor(SDL_DISABLE);
+#else
     if (mouseSave) {
         SDL_Rect src = { 0, 0, mouseSave->w, mouseSave->h };
         SDL_Rect dst = { saveX, saveY, mouseSave->w, mouseSave->h };
@@ -123,6 +168,7 @@ void Screen::hideMouse()
             addRegionToUpdate(dst.x, dst.y, dst.w, dst.h);
         }
     }
+#endif
     mouseVisible = false;
 }
 
@@ -136,6 +182,12 @@ void Screen::showMouse()
         return;
     }
     
+#if SDL_MAJOR_VERSION > 1
+    if(mouseCursor != NULL)
+        SDL_SetCursor(mouseCursor);
+    SDL_ShowCursor(SDL_ENABLE);
+#else
+
     if (mouseImage && mouseSave) {
         int x, y;
         SDL_GetMouseState(&x, &y);
@@ -149,17 +201,29 @@ void Screen::showMouse()
             addRegionToUpdate(dst.x, dst.y, dst.w, dst.h);
         }
     }
+#endif
     mouseVisible = true;
 }
 
 void Screen::updateMouse()
 {
+#if SDL_MAJOR_VERSION > 1
+    // Nothing
+#else
     hideMouse();
     showMouse();
+#endif
 }
 
 void Screen::flush()
 {
+#if SDL_MAJOR_VERSION > 1
+    // do the actual swap...
+    SDL_UpdateTexture(sdlTexture, NULL, screen->pixels, screen->pitch);
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, sdlTexture, NULL, NULL);
+    SDL_RenderPresent(renderer);
+#else
     if (! regions.size()) return;
     
     if (! regionsList) {
@@ -190,11 +254,15 @@ void Screen::flush()
 
     SDL_UpdateRects(screen, regions.size(), regionsList);
     regions.clear();
+#endif
 }
 
 
 void Screen::addRegionToUpdate(int x, int y, int w, int h)
 {
+#if SDL_MAJOR_VERSION > 1
+    (void)x; (void)y; (void)w; (void)h;
+#else
     if (((x >= getWidth()) || (y >= getHeight())) || (0 >= w) || (0 >= h))
         return;
     if ((x + w < 0) || (y + h < 0))
@@ -213,6 +281,7 @@ void Screen::addRegionToUpdate(int x, int y, int w, int h)
     }
     SDL_Rect r = { x, y, w, h };
     regions.push_back(r);
+#endif
 }
 
 
@@ -264,7 +333,13 @@ void Screen::setCursor(bool nice)
 {
     if (nice == niceCursor)
         return;
-    
+ #if SDL_MAJOR_VERSION > 1
+    if (niceCursor)
+        SDL_SetCursor(mouseCursor);
+    else
+        SDL_SetCursor(cursor);
+    niceCursor = nice;
+ #else   
     bool oldVisible = mouseVisible;
     if (mouseVisible)
         hideMouse();
@@ -277,6 +352,7 @@ void Screen::setCursor(bool nice)
     
     if (oldVisible)
         showMouse();
+#endif
 }
 
 void Screen::initCursors()
@@ -295,7 +371,12 @@ void Screen::doneCursors()
 
 SDL_Surface* Screen::createSubimage(int x, int y, int width, int height)
 {
-    SDL_Surface *s = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCCOLORKEY,
+    SDL_Surface *s = SDL_CreateRGBSurface(
+#if SDL_MAJOR_VERSION > 1
+            0,
+#else
+            SDL_HWSURFACE | SDL_SRCCOLORKEY,
+#endif
             width, height, screen->format->BitsPerPixel,
             screen->format->Rmask, screen->format->Gmask,
             screen->format->Bmask, screen->format->Amask);
@@ -307,3 +388,17 @@ SDL_Surface* Screen::createSubimage(int x, int y, int width, int height)
     return s;
 }
 
+#if SDL_MAJOR_VERSION > 1
+void Screen::getMouse(int* x, int* y)
+{
+    SDL_GetMouseState(x, y);
+    convertMouse(x, y);
+}
+void Screen::convertMouse(int* x, int* y)
+{
+    int w, h;
+    SDL_GetWindowSize(window, &w, &h);
+    (*x) = ((*x) * screen->w) / w;
+    (*y) = ((*y) * screen->h) / h;
+}
+#endif

@@ -4,7 +4,7 @@
 #include <string>
 #include <list>
 #include <set>
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "font.h"
 
 
@@ -33,7 +33,11 @@ class Widget
         virtual bool onMouseMove(int x, int y) { return false; };
         virtual void draw() { };
         virtual void setParent(Area *a) { area = a; };
+#if SDL_MAJOR_VERSION > 1
+        virtual bool onKeyDown(SDL_Keycode key, unsigned char ch) { return false; };
+#else
         virtual bool onKeyDown(SDLKey key, unsigned char ch) { return false; };
+#endif
         virtual bool destroyByArea() { return true; };
 };
 
@@ -77,12 +81,21 @@ class Button: public Widget
 class KeyAccel: public Widget
 {
     protected:
+#if SDL_MAJOR_VERSION > 1
+        SDL_Keycode key;
+#else
         SDLKey key;
+#endif
         Command *command;
 
     public:
+#if SDL_MAJOR_VERSION > 1
+        KeyAccel(SDL_Keycode key, Command *command);
+        virtual bool onKeyDown(SDL_Keycode key, unsigned char ch);
+#else
         KeyAccel(SDLKey key, Command *command);
         virtual bool onKeyDown(SDLKey key, unsigned char ch);
+#endif
 };
 
 
@@ -146,7 +159,11 @@ class AnyKeyAccel: public Widget
         virtual ~AnyKeyAccel();
 
     public:
+#if SDL_MAJOR_VERSION > 1
+        virtual bool onKeyDown(SDL_Keycode key, unsigned char ch);
+#else
         virtual bool onKeyDown(SDLKey key, unsigned char ch);
+#endif
         virtual bool onMouseButtonDown(int button, int x, int y);
 };
 
@@ -225,8 +242,13 @@ class InputField: public Window, public TimerHandler
         virtual void draw();
         virtual void setParent(Area *a);
         virtual void onTimer();
+#if SDL_MAJOR_VERSION > 1
+        virtual bool onKeyDown(SDL_Keycode key, unsigned char ch);
+        virtual bool onKeyUp(SDL_Keycode key);
+#else
         virtual bool onKeyDown(SDLKey key, unsigned char ch);
         virtual bool onKeyUp(SDLKey key);
+#endif
         virtual void onCharTyped(unsigned char ch);
 
     private:

@@ -300,7 +300,12 @@ class CheatAccel: public Widget
         };
 
     public:
-        virtual bool onKeyDown(SDLKey key, unsigned char ch) {
+#if SDL_MAJOR_VERSION > 1
+        virtual bool onKeyDown(SDL_Keycode key, unsigned char ch) 
+#else
+        virtual bool onKeyDown(SDLKey key, unsigned char ch) 
+#endif
+        {
             if ((key >= SDLK_a) && (key <= SDLK_z)) {
                 wchar_t s = L'a' + key - SDLK_a;
                 typed += s;

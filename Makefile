@@ -16,8 +16,14 @@ PREFIX=/usr/local
 OPTIMIZE=#-O6 -march=pentium4 -mfpmath=sse -fomit-frame-pointer -funroll-loops
 PROFILER=#-pg
 DEBUG=#-ggdb
-CXXFLAGS=-pipe -Wall $(OPTIMIZE) $(DEBUG) `sdl-config --cflags` -DPREFIX=L\"$(PREFIX)\" $(PROFILER)
-LNFLAGS=-pipe -lSDL_ttf -lfreetype `sdl-config --libs` -lz -lSDL_mixer $(PROFILER)
+SDL2=yes
+ifeq ($(SDL2),yes)
+  CXXFLAGS=-pipe -Wall $(OPTIMIZE) $(DEBUG) `sdl2-config --cflags` -DPREFIX=L\"$(PREFIX)\" $(PROFILER)
+  LNFLAGS=-pipe -lSDL2_ttf -lfreetype `sdl2-config --libs` -lz -lSDL2_mixer $(PROFILER)
+else
+  CXXFLAGS=-pipe -Wall $(OPTIMIZE) $(DEBUG) `sdl-config --cflags` -DPREFIX=L\"$(PREFIX)\" $(PROFILER)
+  LNFLAGS=-pipe -lSDL_ttf -lfreetype `sdl-config --libs` -lz -lSDL_mixer $(PROFILER)
+endif
 INSTALL=install
 
 TARGET=einstein
@@ -49,7 +55,7 @@ all: $(TARGET)
 
 
 $(TARGET): $(OBJECTS)
-	$(CXX) $(LNFLAGS) $(OBJECTS) -o $(TARGET)
+	$(CXX) $(OBJECTS) -o $(TARGET) $(LNFLAGS) 
 
 clean:
 	rm -f $(OBJECTS) core* *core $(TARGET) *~
