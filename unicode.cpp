@@ -459,7 +459,11 @@ std::string toUtf8(const std::wstring &str)
     
     int len = str.length();
     int bufSize = (len + 1) * 6 + 1;
+#ifdef _MSC_VER
+	char buf[10240];
+#else
     char buf[bufSize];
+#endif
     int res = WideCharToMultiByte(CP_UTF8, 0, str.c_str(), len + 1,
            buf, bufSize, NULL, NULL);
 
@@ -474,7 +478,11 @@ std::wstring fromUtf8(const std::string &str)
         return L"";
     
     int len = str.length();
-    wchar_t buf[len + 1];
+#ifdef _MSC_VER
+	wchar_t buf[10240];
+#else
+	wchar_t buf[len + 1];
+#endif
 
     int res = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), len + 1, 
             buf, len + 1);
@@ -491,7 +499,11 @@ std::string toOem(const std::wstring &str)
     
     int len = str.length();
     int bufSize = (len + 1) * 6 + 1;
-    char buf[bufSize];
+#ifdef _MSC_VER
+	char buf[10240];
+#else
+	char buf[bufSize];
+#endif
     int res = WideCharToMultiByte(CP_OEMCP, 0, str.c_str(), len + 1,
            buf, bufSize, NULL, NULL);
 
@@ -506,7 +518,11 @@ std::wstring fromOem(const std::string &str)
         return L"";
     
     int len = str.length();
-    wchar_t buf[len + 1];
+#ifdef _MSC_VER
+	wchar_t buf[10240];
+#else
+	wchar_t buf[len + 1];
+#endif
 
     int res = MultiByteToWideChar(CP_OEMCP, 0, str.c_str(), len + 1, 
             buf, len + 1);
@@ -538,7 +554,11 @@ std::string toMbcs(const std::wstring &str)
         return "";
     else {
         int maxSize = MB_CUR_MAX * len;
-        char buf[maxSize + 1];
+#ifdef _MSC_VER
+		char buf[10240];
+#else
+		char buf[maxSize + 1];
+#endif
         size_t l = wcstombs(buf, str.c_str(), maxSize);
         if ((size_t)-1 == -l) {         // convert what we can
             std::string res;
@@ -561,7 +581,11 @@ std::string toMbcs(const std::wstring &str)
 std::wstring fromMbcs(const std::string &str)
 {
     int maxLen = str.length();
-    wchar_t ws[maxLen + 1];
+#ifdef _MSC_VER
+	wchar_t ws[10240];
+#else
+	wchar_t ws[maxLen + 1];
+#endif
     size_t cnt = mbstowcs(ws, str.c_str(), maxLen);
     if (cnt == (size_t)-1) {
         return L"";
@@ -573,7 +597,7 @@ std::wstring fromMbcs(const std::string &str)
 
 std::ostream& operator << (std::ostream &stream, const std::wstring &str)
 {
-#ifdef WIN32
+#if defined WIN32 && !defined _MSC_VER
     if ((stream == std::cout) || (stream == std::cerr) || 
             (stream == std::clog))
         stream << toOem(str);

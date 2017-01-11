@@ -637,7 +637,9 @@ InputField::InputField(int x, int y, int w, int h, const std::wstring &backgroun
 InputField::~InputField()
 {
 #if SDL_MAJOR_VERSION > 1
+#ifndef _MSC_VER
 #warning implement SDL 2.0 TEXT INPUT
+#endif
 #else
     SDL_EnableKeyRepeat(0, 0);
 #endif

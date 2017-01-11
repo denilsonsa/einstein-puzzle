@@ -313,8 +313,11 @@ static void printRules(Rules &rules)
 
 void genPuzzle(SolvedPuzzle &puzzle, Rules &rules)
 {
-    srand(time(NULL));
-
+#ifdef _MSC_VER
+	srand(GetTickCount());
+#else
+	srand(time(NULL));
+#endif
     for (int i = 0; i < PUZZLE_SIZE; i++) {
         for (int j = 0; j < PUZZLE_SIZE; j++) 
             puzzle[i][j] = j + 1;

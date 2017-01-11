@@ -1,6 +1,10 @@
 #include <algorithm>
 #include <sys/types.h>
+#ifdef _MSC_VER
+#include <Windows.h>
+#else
 #include <dirent.h>
+#endif
 #include <zlib.h>
 
 #include "resources.h"
@@ -533,10 +537,29 @@ ResourcesCollection::~ResourcesCollection()
 
 void ResourcesCollection::loadResourceFiles(StringList &directories)
 {
-    for (StringList::iterator i = directories.begin();
+#ifdef _MSC_VER
+	WCHAR			currentDir[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH, currentDir);
+#endif
+	for (StringList::iterator i = directories.begin();
             i != directories.end(); i++)
     {
         const std::wstring &d = *i;
+#ifdef _MSC_VER
+		WIN32_FIND_DATA FileData;
+		HANDLE          hSearch;
+		if (SetCurrentDirectory(d.c_str())) {
+			hSearch = FindFirstFile(TEXT("*.res"), &FileData);
+			if (hSearch != INVALID_HANDLE_VALUE)
+			{
+				do {
+					files.push_back(new ResourceFile(d + L"\\" + FileData.cFileName, &buffer));
+				} while (FindNextFile(hSearch, &FileData));
+				FindClose(hSearch);
+			}
+			SetCurrentDirectory(currentDir);
+		}
+#else
         DIR *dir = opendir(toMbcs(d).c_str());
         if (dir) {
             struct dirent *de;
@@ -549,6 +572,7 @@ void ResourcesCollection::loadResourceFiles(StringList &directories)
                 }
             closedir(dir);
         }
+#endif
     }
 }
 

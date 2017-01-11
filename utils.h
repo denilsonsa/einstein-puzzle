@@ -4,7 +4,11 @@
 #include <SDL.h>
 #include <string>
 #ifdef WIN32
+#ifdef _MSC_VER
+#include <Windows.h>
+#else
 #include <sys/time.h>
+#endif
 #endif
 #include <iostream>
 #include "resources.h"

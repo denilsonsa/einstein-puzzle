@@ -1,13 +1,20 @@
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef _MSC_VER
+#include <windows.h>
+#include <time.h>
+#else
 #include <sys/time.h>
+#endif
 #include <math.h>
 #include <wchar.h>
 
 //#ifndef WIN32
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 //#endif
 
 #include <fstream>
@@ -348,6 +355,13 @@ void drawBevel(SDL_Surface *s, int left, int top, int width, int height,
 
 void ensureDirExists(const std::wstring &fileName)
 {
+#ifdef _MSC_VER
+	DWORD dwAttrib = GetFileAttributes(fileName.c_str());
+
+	if (!(dwAttrib != INVALID_FILE_ATTRIBUTES &&
+		(dwAttrib & FILE_ATTRIBUTE_DIRECTORY)))
+		CreateDirectory(fileName.c_str(), NULL);
+#else
     std::string s(toMbcs(fileName));
     struct stat buf;
     if (! stat(s.c_str(), &buf)) {
@@ -360,6 +374,7 @@ void ensureDirExists(const std::wstring &fileName)
     mkdir(s.c_str(), S_IRUSR | S_IWUSR | S_IXUSR);
 #else
     mkdir(s.c_str());
+#endif
 #endif
 }
 

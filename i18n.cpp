@@ -288,11 +288,11 @@ Locale::Locale()
 
     char buf[100];
     int len;
-    len = GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SABBREVCTRYNAME, buf, 99);
+    len = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SABBREVCTRYNAME, buf, 99);
     if (len > 0)
         country = mapIso3ContryToIso2(buf);
     
-    len = GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SABBREVLANGNAME, buf, 99);
+    len = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SABBREVLANGNAME, buf, 99);
     if (len > 0) {
         /* according to MSDN:
            LOCALE_SABBREVLANGNAME   Abbreviated name of the language, 
@@ -305,7 +305,7 @@ Locale::Locale()
         language = toLowerCase(fromMbcs(buf));
     }
     
-    len = GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_IDEFAULTANSICODEPAGE, buf, 99);
+    len = GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_IDEFAULTANSICODEPAGE, buf, 99);
     if (len > 0)
         encoding = L"CP" + std::wstring(fromMbcs(buf));  // FIXME!
 #endif
