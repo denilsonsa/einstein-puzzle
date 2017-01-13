@@ -47,7 +47,8 @@ void Screen::setMode(const VideoMode& mode)
     int flags = (fullScreen)?SDL_WINDOW_FULLSCREEN_DESKTOP:SDL_WINDOW_RESIZABLE;
     if(renderer) SDL_DestroyRenderer(renderer);
     if(window) SDL_DestroyWindow(window);
-    SDL_CreateWindowAndRenderer(mode.getWidth(), mode.getHeight(), flags, &window, &renderer);
+	window = SDL_CreateWindow("einstein", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, mode.getWidth(), mode.getHeight(), flags);
+	if (window) renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if(window!=NULL && renderer!=NULL) {
         screen = SDL_CreateRGBSurface(0, mode.getWidth(), mode.getHeight(), 32, 
             0x00ff0000,0x0000ff00, 0x000000ff, 0xff000000);
