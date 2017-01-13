@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{84A152C4-3ACE-4901-B87F-B68D306EDB0D}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>einstein</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\sebastien\Documents\GitHub\einstein-puzzle\thirdparty\SDL2\include;C:\Users\sebastien\Documents\GitHub\einstein-puzzle\thirdparty\zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>C:\Users\sebastien\Documents\GitHub\einstein-puzzle\thirdparty\SDL2\lib\x86;C:\Users\sebastien\Documents\GitHub\einstein-puzzle\thirdparty\zlib\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2main.lib;SDL2.lib;SDL2_mixer.lib;SDL2_ttf.lib;zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)\..\thirdparty\SDL2\lib\x86\*.dll" "$(TargetDir)"
+copy /Y "$(SolutionDir)\..\thirdparty\zlib\*.dll" "$(TargetDir)"
+copy /Y "$(SolutionDir)\..\*.res" "$(TargetDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\sebastien\Documents\GitHub\einstein-puzzle\thirdparty\SDL2\include;C:\Users\sebastien\Documents\GitHub\einstein-puzzle\thirdparty\zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>SDL2main.lib;SDL2.lib;SDL2_mixer.lib;SDL2_ttf.lib;zdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\sebastien\Documents\GitHub\einstein-puzzle\thirdparty\SDL2\lib\x86;C:\Users\sebastien\Documents\GitHub\einstein-puzzle\thirdparty\zlib\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(SolutionDir)\..\thirdparty\SDL2\lib\x86\*.dll" "$(TargetDir)"
+copy /Y "$(SolutionDir)\..\thirdparty\zlib\*.dll" "$(TargetDir)"
+copy /Y "$(SolutionDir)\..\*.res" "$(TargetDir)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\buffer.cpp" />
+    <ClCompile Include="..\..\conf.cpp" />
+    <ClCompile Include="..\..\convert.cpp" />
+    <ClCompile Include="..\..\descr.cpp" />
+    <ClCompile Include="..\..\font.cpp" />
+    <ClCompile Include="..\..\formatter.cpp" />
+    <ClCompile Include="..\..\game.cpp" />
+    <ClCompile Include="..\..\horhints.cpp" />
+    <ClCompile Include="..\..\i18n.cpp" />
+    <ClCompile Include="..\..\iconset.cpp" />
+    <ClCompile Include="..\..\lexal.cpp" />
+    <ClCompile Include="..\..\main.cpp" />
+    <ClCompile Include="..\..\menu.cpp" />
+    <ClCompile Include="..\..\messages.cpp" />
+    <ClCompile Include="..\..\opensave.cpp" />
+    <ClCompile Include="..\..\options.cpp" />
+    <ClCompile Include="..\..\puzgen.cpp" />
+    <ClCompile Include="..\..\puzzle.cpp" />
+    <ClCompile Include="..\..\random.cpp" />
+    <ClCompile Include="..\..\regstorage.cpp" />
+    <ClCompile Include="..\..\resources.cpp" />
+    <ClCompile Include="..\..\rules.cpp" />
+    <ClCompile Include="..\..\screen.cpp" />
+    <ClCompile Include="..\..\sound.cpp" />
+    <ClCompile Include="..\..\storage.cpp" />
+    <ClCompile Include="..\..\streams.cpp" />
+    <ClCompile Include="..\..\table.cpp" />
+    <ClCompile Include="..\..\tablestorage.cpp" />
+    <ClCompile Include="..\..\tokenizer.cpp" />
+    <ClCompile Include="..\..\topscores.cpp" />
+    <ClCompile Include="..\..\unicode.cpp" />
+    <ClCompile Include="..\..\utils.cpp" />
+    <ClCompile Include="..\..\verthints.cpp" />
+    <ClCompile Include="..\..\widgets.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\buffer.h" />
+    <ClInclude Include="..\..\conf.h" />
+    <ClInclude Include="..\..\convert.h" />
+    <ClInclude Include="..\..\descr.h" />
+    <ClInclude Include="..\..\exceptions.h" />
+    <ClInclude Include="..\..\font.h" />
+    <ClInclude Include="..\..\formatter.h" />
+    <ClInclude Include="..\..\game.h" />
+    <ClInclude Include="..\..\horhints.h" />
+    <ClInclude Include="..\..\i18n.h" />
+    <ClInclude Include="..\..\iconset.h" />
+    <ClInclude Include="..\..\lexal.h" />
+    <ClInclude Include="..\..\main.h" />
+    <ClInclude Include="..\..\messages.h" />
+    <ClInclude Include="..\..\opensave.h" />
+    <ClInclude Include="..\..\options.h" />
+    <ClInclude Include="..\..\puzgen.h" />
+    <ClInclude Include="..\..\puzzle.h" />
+    <ClInclude Include="..\..\random.h" />
+    <ClInclude Include="..\..\regstorage.h" />
+    <ClInclude Include="..\..\resources.h" />
+    <ClInclude Include="..\..\screen.h" />
+    <ClInclude Include="..\..\sound.h" />
+    <ClInclude Include="..\..\storage.h" />
+    <ClInclude Include="..\..\streams.h" />
+    <ClInclude Include="..\..\table.h" />
+    <ClInclude Include="..\..\tablestorage.h" />
+    <ClInclude Include="..\..\tokenizer.h" />
+    <ClInclude Include="..\..\topscores.h" />
+    <ClInclude Include="..\..\unicode.h" />
+    <ClInclude Include="..\..\utils.h" />
+    <ClInclude Include="..\..\verthints.h" />
+    <ClInclude Include="..\..\visitor.h" />
+    <ClInclude Include="..\..\widgets.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="einstein.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
