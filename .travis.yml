@@ -15,17 +15,6 @@ matrix:
           sudo : required
 
 #Build steps
-before_install:
-    - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-    -  brew update
-    -  brew install libsdl2-mixer libsdl2-image libsdl2-ttf
-    - else
-    -  sudo apt-get install libsdl2-mixer-dev libsdl2-image-dev libsdl2-ttf-dev -y
-    - fi
+before_install: if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update ; brew install libsdl2-mixer libsdl2-image libsdl2-ttf ; else sudo apt-get install libsdl2-mixer-dev libsdl2-image-dev libsdl2-ttf-dev -y ; fi
 
-script:
-    - if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-    -  make -f makefile.macosx
-    - else 
-    -  make
-    - fi
+script: if [ "$TRAVIS_OS_NAME" == "osx" ]; then make -f makefile.macosx ; else make ; fi
