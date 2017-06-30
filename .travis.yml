@@ -4,6 +4,8 @@ os:
     - linux
     - osx
 
+dist : trusty
+
 compiler:
     - g++
     - clang++
@@ -11,8 +13,14 @@ compiler:
 matrix:
     include:
         - os: linux
-          dist : trusty
           sudo : required
+          
+    exclude:
+        - os: linux
+          compiler: clang++
+
+        - os: osx
+          compiler: g++
 
 #Build steps
 before_install: if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update ; brew install libsdl2-mixer libsdl2-image libsdl2-ttf ; else sudo apt-get install libsdl2-mixer-dev libsdl2-image-dev libsdl2-ttf-dev -y ; fi
