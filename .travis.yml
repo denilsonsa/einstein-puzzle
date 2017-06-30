@@ -1,0 +1,12 @@
+language: cpp
+sudo: true
+dist: trusty
+
+compiler:
+    - g++
+
+#Build steps
+before_install:
+    - sudo apt-get install libsdl2-mixer-dev libsdl2-image-dev libsdl2-ttf-dev -y
+
+script: make
