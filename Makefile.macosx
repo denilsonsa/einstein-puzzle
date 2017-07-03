@@ -19,7 +19,7 @@ DEBUG=-ggdb
 SDL2=yes
 ifeq ($(SDL2),yes)
   CXXFLAGS=-pipe -Wall $(OPTIMIZE) $(DEBUG) `sdl2-config --cflags` -I/Library/Frameworks/SDL2_ttf.framework/Headers/ -I/Library/Frameworks/SDL2_mixer.framework/Headers/ -DPREFIX=L\"$(PREFIX)\" $(PROFILER)
-  LNFLAGS=-pipe -framework Cocoa `sdl2-config --libs` -framework SDL2_ttf -framework SDL2_mixer -Wl,-rpath,/Library/Frameworks -lz  $(PROFILER)
+  LNFLAGS=-pipe -framework Cocoa `sdl2-config --libs` -lSDL2_ttf -lSDL2_mixer -lz  $(PROFILER)
 else
   CXXFLAGS=-pipe -Wall $(OPTIMIZE) $(DEBUG) -I/Library/Frameworks/SDL.framework/Headers/ -I/Library/Frameworks/SDL_ttf.framework/Headers/ -I/Library/Frameworks/SDL_mixer.framework/Headers/ -DPREFIX=L\"$(PREFIX)\" $(PROFILER)
   LNFLAGS=-pipe -framework Cocoa -framework SDL_ttf -framework SDL -framework SDL_mixer -lSDLmain -lz  $(PROFILER)
