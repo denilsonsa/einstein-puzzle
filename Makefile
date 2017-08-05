@@ -19,7 +19,7 @@ DEBUG=#-ggdb
 SDL2=yes
 ifeq ($(SDL2),yes)
   CXXFLAGS=-pipe -Wall $(OPTIMIZE) $(DEBUG) `sdl2-config --cflags` -DPREFIX=L\"$(PREFIX)\" $(PROFILER)
-  LNFLAGS=-pipe -lSDL2_ttf -lfreetype `sdl2-config --libs` -lz -lSDL2_mixer $(PROFILER)
+  LNFLAGS=-pipe `sdl2-config --libs` -lz -lSDL2_mixer -lSDL2_ttf  $(PROFILER)
 else
   CXXFLAGS=-pipe -Wall $(OPTIMIZE) $(DEBUG) `sdl-config --cflags` -DPREFIX=L\"$(PREFIX)\" $(PROFILER)
   LNFLAGS=-pipe -lSDL_ttf -lfreetype `sdl-config --libs` -lz -lSDL_mixer $(PROFILER)
