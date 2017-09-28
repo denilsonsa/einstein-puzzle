@@ -7,6 +7,13 @@ os:
 sudo : required
 
 dist : trusty
+addons:
+  apt:
+    packages:
+    - libsdl2-dev
+    - libsdl2-image-dev
+    - libsdl2-mixer-dev
+    - libsdl2-ttf-dev
 
 compiler:
     - g++
@@ -24,6 +31,5 @@ matrix:
 before_install: 
     - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update ; fi
     - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install sdl2_mixer sdl2_image sdl2_ttf ; fi
-    - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get udpate ; sudo apt-get install libsdl2-mixer-dev libsdl2-image-dev libsdl2-ttf-dev -y ; fi
 
 script: if [ "$TRAVIS_OS_NAME" == "osx" ]; then make -f Makefile.macosx ; else make ; fi
