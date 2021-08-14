@@ -219,11 +219,17 @@ void Screen::updateMouse()
 void Screen::flush()
 {
 #if SDL_MAJOR_VERSION > 1
-    // do the actual swap...
-    SDL_UpdateTexture(sdlTexture, NULL, screen->pixels, screen->pitch);
-    SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, sdlTexture, NULL, NULL);
-    SDL_RenderPresent(renderer);
+    static uint32_t last_flush = 0;
+    uint32_t now = SDL_GetTicks();
+    if ( now - last_flush > 50 ) // cap at 20 fps
+    {
+        last_flush = now;
+        // do the actual swap...
+        SDL_UpdateTexture(sdlTexture, NULL, screen->pixels, screen->pitch);
+        // SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, sdlTexture, NULL, NULL);
+        SDL_RenderPresent(renderer);
+    }
 #else
     if (! regions.size()) return;
     
