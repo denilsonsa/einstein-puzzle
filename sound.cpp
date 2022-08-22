@@ -22,7 +22,7 @@
 #include "resources.h"
 
 #include <iostream>
-#include <SDL/SDL_events.h>
+#include <SDL_events.h>
 
 
 Sound *sound;

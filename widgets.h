@@ -22,7 +22,7 @@
 #ifndef __WIDGETS_H__
 #define __WIDGETS_H__
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "font.h"
 
 #include <set>
