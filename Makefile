@@ -35,14 +35,13 @@ else
 	PREFIX=/usr/local
 	PROFILER=#-pg
 	LIBS=
-	ifeq ($(UNAME_S),Linux)
-		CXXFLAGS=-pipe -Wall $(OPTIMIZE) $(DEBUG) `sdl-config --cflags` -DPREFIX=L\"$(PREFIX)\" $(PROFILER)
-		LNFLAGS=-pipe `sdl-config --libs` -lz -lSDL_mixer -lSDL_ttf -lfreetype $(PROFILER)
-		INSTALL=install
-	endif
 	ifeq ($(UNAME_S),Darwin)
 		CXXFLAGS=-pipe -Wall $(OPTIMIZE) $(DEBUG) -I/Library/Frameworks/SDL.framework/Headers/ -I/Library/Frameworks/SDL_ttf.framework/Headers/ -I/Library/Frameworks/SDL_mixer.framework/Headers/ -DPREFIX=L\"$(PREFIX)\" $(PROFILER)
 		LNFLAGS=-pipe -framework Cocoa -framework SDL_ttf -framework SDL -framework SDL_mixer -lSDLmain -lz  $(PROFILER)
+	else
+		CXXFLAGS=-pipe -Wall $(OPTIMIZE) $(DEBUG) `sdl-config --cflags` -DPREFIX=L\"$(PREFIX)\" $(PROFILER)
+		LNFLAGS=-pipe `sdl-config --libs` -lz -lSDL_mixer -lSDL_ttf -lfreetype $(PROFILER)
+		INSTALL=install
 	endif
 endif
 
