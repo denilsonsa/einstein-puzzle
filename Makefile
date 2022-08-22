@@ -103,8 +103,10 @@ run: einstein
 	./einstein
 
 install: $(TARGET)
-	$(INSTALL) -s -D $(TARGET) $(PREFIX)/bin/$(TARGET)
-	$(INSTALL) -D einstein.res $(PREFIX)/share/einstein/res/einstein.res
+	$(INSTALL) -d $(DESTDIR)$(PREFIX)/bin
+	$(INSTALL) -d $(DESTDIR)$(PREFIX)/share/einstein/res
+	$(INSTALL) -s $(TARGET) $(DESTDIR)$(PREFIX)/bin/$(TARGET)
+	$(INSTALL) einstein.res $(DESTDIR)$(PREFIX)/share/einstein/res/einstein.res
 
 $(DEPDIR)/%.d: ;
 .PRECIOUS: $(DEPDIR)/%.d
