@@ -30,9 +30,9 @@
 #include "utils.h"
 
 #include <iostream>
-#include <SDL/SDL.h>
-#include <SDL/SDL_main.h>
-#include <SDL/SDL_ttf.h>
+#include <SDL.h>
+#include <SDL_main.h>
+#include <SDL_ttf.h>
 
 
 Screen screen;

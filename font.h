@@ -24,7 +24,7 @@
 
 
 #include <string>
-#include <SDL/SDL_ttf.h>
+#include <SDL_ttf.h>
 
 
 class Font
